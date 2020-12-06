@@ -2,6 +2,7 @@ import * as React from 'react';
 import { useEffect, useState } from 'react';
 import './App.css';
 import logo from './logo.svg';
+import Snippet from './snippet/Snippet';
 import { useVscodeResponse } from './vscode-bridge/hooks/VscodeHooks';
 import { CodeSnippetResponse, vscode } from './vscode-bridge/VscodeTypes';
 
@@ -30,12 +31,8 @@ function App() {
   }, []);
 
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <h1 className="App-title">{title}</h1>
-      </header>
-      <p className="snippet-text">{response && response.codeSnippet}</p>
+    <div>
+      <Snippet codeSnippet={(response && response.codeSnippet) || ''}></Snippet>
     </div>
   );
 }
