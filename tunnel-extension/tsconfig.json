@@ -12,7 +12,7 @@
     "module": "commonjs",
     "moduleResolution": "node",
     "resolveJsonModule": true,
-    "jsx": "react-jsx",
+    "jsx": "react",
     "outDir": "./build/",
     "typeRoots": ["./node_modules/@types"],
     "noFallthroughCasesInSwitch": true,
