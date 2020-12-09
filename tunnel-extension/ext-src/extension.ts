@@ -4,7 +4,7 @@ import * as vscode from 'vscode';
 export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(
     vscode.commands.registerCommand('tunnel.run', () => {
-      ReactPanel.createOrShow(context.extensionPath);
+      ReactPanel.createOrShow(context);
     }),
   );
 }
@@ -23,21 +23,22 @@ class ReactPanel {
   private readonly panel: vscode.WebviewPanel;
   private readonly extensionPath: string;
   private disposables: vscode.Disposable[] = [];
+  private context: vscode.ExtensionContext;
 
-  public static createOrShow(extensionPath: string) {
+  public static createOrShow(context: vscode.ExtensionContext) {
     const column = vscode.window.activeTextEditor ? vscode.window.activeTextEditor.viewColumn : vscode.ViewColumn.Two;
-
     // If we already have a panel, show it.
     // Otherwise, create a new panel.
     if (ReactPanel.currentPanel) {
       ReactPanel.currentPanel.panel.reveal(column);
     } else {
-      ReactPanel.currentPanel = new ReactPanel(extensionPath, column || vscode.ViewColumn.One);
+      ReactPanel.currentPanel = new ReactPanel(context, column || vscode.ViewColumn.One);
     }
   }
 
-  private constructor(extensionPath: string, column: vscode.ViewColumn) {
-    this.extensionPath = extensionPath;
+  private constructor(context: vscode.ExtensionContext, column: vscode.ViewColumn) {
+    this.context = context;
+    this.extensionPath = context.extensionPath;
 
     // Create and show a new webview panel
     this.panel = vscode.window.createWebviewPanel(ReactPanel.viewType, 'Tunnel', column, {
@@ -49,12 +50,18 @@ class ReactPanel {
     });
 
     // Set the webview's initial html content
+
+    let text = vscode.window.activeTextEditor?.document.getText(vscode.window.activeTextEditor.selection);
+
+    text = text || this.context.globalState.get('code-snippet') || '';
+
+    if (!text) {
+      vscode.window.showWarningMessage('Please select the code snippet');
+      return;
+    }
+    this.context.globalState.update('code-snippet', text);
+
     this.panel.webview.html = this.getHtmlForWebview();
-
-    const text = vscode.window.activeTextEditor?.document.getText(vscode.window.activeTextEditor.selection);
-
-    vscode.window.showInformationMessage(text || '');
-
     this.panel.webview.postMessage({
       type: 'code-snippet',
       codeSnippet: text,
@@ -121,7 +128,6 @@ class ReactPanel {
 			<body>
 				<noscript>You need to enable JavaScript to run this app.</noscript>
 				<div id="root"></div>
-        
         <script nonce="${nonce}" src="${this.assetsFile('react.production.min.js')}"></script>
         <script nonce="${nonce}" src="${this.assetsFile('react-dom.production.min.js')}"></script>
         <script>
