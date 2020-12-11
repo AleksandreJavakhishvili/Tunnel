@@ -3,7 +3,8 @@
   "tasks": [
     {
       "type": "npm",
-      "script": "compile",
+      "script": "watch",
+      "label": "watch",
       "isBackground": true,
       "presentation": {
         "reveal": "never"

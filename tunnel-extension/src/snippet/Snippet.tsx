@@ -7,7 +7,13 @@ interface Props {
 export default function Snippet({ codeSnippet }: Props) {
   return (
     <div>
-      <p className="snippet-text">{codeSnippet}</p>
+      <p className="snippet-text">
+        <blockquote>
+          <pre>
+            <code>{codeSnippet}</code>
+          </pre>
+        </blockquote>
+      </p>
       <input placeholder="Enter Description"></input>
     </div>
   );
